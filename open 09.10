@@ -1,0 +1,61 @@
+# Untitled - By: etapa - seg fev 5 2024
+
+import sensor, image, time
+from pyb import UART
+
+sensor.reset()
+sensor.set_pixformat(sensor.RGB565)
+sensor.set_framesize(sensor.QVGA)
+sensor.skip_frames(time = 2000)
+sensor.set_auto_gain(False)
+sensor.set_auto_whitebal(False)
+
+clock = time.clock()
+uart = UART(3, 9600) #porta 4 e 5
+blobamarelo = (0, 53, 10, 122, 39, 60)
+blobazul = (0, 35, 32, -128, -57, -6)
+
+gol = 'm'
+
+while(True):
+    if gol == 'z':
+        clock.tick()
+        img = sensor.snapshot()
+        blobs = img.find_blobs([blobazul], area_threshold=20, merge=False, margin=30)
+        img.draw_cross(160,120, color=(0,255,0))
+        max = -1
+    
+        if len(blobs) > 0:
+            vencedora = blobs[0]
+            for mancha in blobs:
+                if mancha.rect()[2]*mancha.rect()[3]>max:
+                    max = mancha.rect()[2]*mancha.rect()[3]
+                    vencedora = mancha
+                    print(vencedora, max)
+            img.draw_rectangle(vencedora.rect(), color=(255,0,0))
+            img.draw_cross(vencedora.cx(), vencedora.cy(), color=(255,0,0))
+            c = str(vencedora.cx()) + "\n"
+            uart.write(c)
+    elif gol == 'm':
+        clock.tick()
+        img = sensor.snapshot()
+        blobs = img.find_blobs([blobamarelo], area_threshold=20, merge=False, margin=20)
+        img.draw_cross(160,120, color=(0,255,0))
+        max = -1
+    
+        if len(blobs) > 0:
+            vencedora = blobs[0]
+            for mancha in blobs:
+                if mancha.rect()[2]*mancha.rect()[3]>max:
+                    max = mancha.rect()[2]*mancha.rect()[3]
+                    vencedora = mancha
+                    print(vencedora, max)
+            img.draw_rectangle(vencedora.rect(), color=(255,0,0))
+            img.draw_cross(vencedora.cx(), vencedora.cy(), color=(255,0,0))
+            c = str(vencedora.cx()) + "\n"
+            uart.write(c)
+        
+
+
+
+
